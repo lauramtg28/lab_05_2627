@@ -23,24 +23,61 @@ Note that some columns have been dropped from `simpsons_script_lines` to make th
 - [ ] Load all four of the files
 
 ::: {.solution}
+```{r}
+library(tidyverse)
+characters <- read.csv("data/simpsons/simpsons_characters.csv")
+episodes <- read.csv("data/simpsons/simpsons_episodes.csv")
+locations <- read.csv("data/simpsons/simpsons_locations.csv")
+script_lines <- read.csv("data/simpsons/simpsons_script_lines.csv")
+```
 
+```{r}
+head(characters)
+```
+```{r}
+head(episodes)
+```
+```{r}
+head(locations)
+```
+```{r}
+head(script_lines)
+```
 :::
 
-- [ ] Before joining anything, look at the first few rows of each table. What does one row of each table represent? Which columns link the tables together, and would you describe each link as one-to-one, one-to-many or many-to-many?
+- [x] Before joining anything, look at the first few rows of each table. What does one row of each table represent? Which columns link the tables together, and would you describe each link as one-to-one, one-to-many or many-to-many?
 
 ::: {.solution}
-
+One row of the characters table corresponds to a character, one row in the `script_lines` data set corresponds to a single script line. It has columns with episode id, character id and location id which will be the links to the other data sets. Each link is one-to-many.
 :::
 
 
 Answer the following research questions using `join` functions.
 (Make sure your outputs print e.g. location or character names, not just IDs).
 
-- [ ] Which character and location pairs have the most lines?
+- [x] Which character and location pairs have the most lines?
 - [ ] Which episodes feature the most characters? (Hint: look at the `n_distinct` function. Is every script line spoken by a character?)
 
 ::: {.solution}
+```{r}
+script_lines |> inner_join(characters, by = c("character_id" = "id")) |> inner_join(locations, by = c("location_id" = "id")) |> group_by(character_name, location_name) |> summarise(n_lines = n()) |> arrange(desc(n_lines))
+```
+Don't need to join to answer the first part of the question
+```{r}
+script_lines |> group_by(episode_id) |> summarise ( n_characters = n_distinct(character_id)) |> arrange(desc(n_characters))
+```
+Is every script line spoken by a character?
 
+```{r}
+script_lines |> inner_join(characters, by = c("character_id" = "id")) |> group_by(episode_id) |> summarise ( n_characters = n_distinct(character_id)) |> arrange(desc(n_characters))
+```
+One extra character that is not a character in each episode. 
+```{r}
+setdiff(script_lines$character_id, characters$id)
+```
+```{r}
+setdiff(characters$id, script_lines$character_id)
+```
 :::
 
 ### Task 1b: Choosing a Join
