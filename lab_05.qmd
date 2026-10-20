@@ -87,8 +87,8 @@ All of the joins in Task 1 were inner joins, which keep only the rows that have 
 In this task we look at what that throws away.
 
 - [x] Join `simpsons_script_lines` to `simpsons_locations`, once with `inner_join` and once with `left_join`. How many rows does each result have? Why are they different?
-- [ ] Look at some of the rows that appear in the `left_join` result but not the `inner_join` one. What do they have in common?
-- [ ] Which episodes in `simpsons_episodes` have no script lines at all? (Hint: see "Other Types of Join" in the Week 5 notes.) Is there a pattern?
+- [x] Look at some of the rows that appear in the `left_join` result but not the `inner_join` one. What do they have in common?
+- [x] Which episodes in `simpsons_episodes` have no script lines at all? (Hint: see "Other Types of Join" in the Week 5 notes.) Is there a pattern?
 - [x] In Task 1, we used `inner_join` to find which character and location pairs have the most lines. Was that the right choice? Yes it was as we don't care about the episodes where no lines are said.
 
 ::: {.solution}
@@ -98,18 +98,36 @@ inner_table <- script_lines |> inner_join(locations, by = c("location_id" = "id"
 
 setdiff(left_table$id, inner_table$id)
 ```
+```{r}
+left_table |> filter(id == 41060 | id == 41061 | id ==  41062 | id == 41063 | id == 41064 | id == 41065 | id == 41066 | id == 41067 )
+```
+The things they have in common is that they do not have any location information. 
+
+We are going to use other types of join to have a look at the episodes without speaking lines using `anti_join()`:
+```{r}
+episodes |> anti_join(script_lines, by = c("id" = "episode_id"))
+```
+There are 32 episodes without a single script line according to this data set.
 :::
 
 ### Task 2: String Processing
 
 Answer the following research questions:
 
-- [ ] Which episode has the longest line (in terms of `spoken_words`)?
+- [x] Which episode has the longest line (in terms of `spoken_words`)? Episode 503
 - [ ] Print that line in full (e.g. with `cat`). Does it look like a single line of dialogue? Find the same line in the raw CSV file: what do you think has gone wrong?
 - [ ] How many values of `spoken_words` have this problem? Remove them, and find the longest line again. (Hint: each row of a CSV file ends with a *newline* character, which `R` writes as `"\n"`. You can search for it with `str_detect` like any other text.)
 - [x] In how many episodes are donuts / doughnuts mentioned? (Hint: be careful about capitalisation.)
 
 ::: {.solution}
+Which ep has longest line:
+```{r}
+script_lines |> mutate ( string_length = str_length(spoken_words)) |> arrange(desc(string_length)) |> head()
+```
+
+
+
+No. of episodes doughnuts are mentioned in. 
 ```{r}
 script_lines |> mutate(spoken_words =str_to_lower(spoken_words)) |> mutate(has_donut = str_detect(spoken_words, "donut"), has_doughnut = str_detect(spoken_words, "doughnut")) |> filter(has_donut | has_doughnut) |> summarise( n_episodes_w_dnuts = n_distinct(episode_id))
 ```
