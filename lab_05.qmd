@@ -158,12 +158,25 @@ first_episodes <- tibble(
 first_episodes
 ```
 
-- [ ] Convert each of `uk_date`, `us_date` and `long_date` into a date, using `lubridate`. Check that all three give the same dates.
-- [ ] What happens if you use the wrong function, for example `dmy` on `us_date`? Which dates fail to parse, and which are wrong without any warning?
-- [ ] `excel_date` contains the same dates stored as Excel date numbers. Convert these into dates too. (Hint: see the Week 5 notes.)
+- [x] Convert each of `uk_date`, `us_date` and `long_date` into a date, using `lubridate`. Check that all three give the same dates.
+- [x] What happens if you use the wrong function, for example `dmy` on `us_date`? Which dates fail to parse, and which are wrong without any warning?
+- [x] `excel_date` contains the same dates stored as Excel date numbers. Convert these into dates too. (Hint: see the Week 5 notes.)
 
 ::: {.solution}
+```{r}
+first_episodes |> mutate(uk_date = dmy(uk_date)) |> mutate(us_date = mdy(us_date)) |> mutate( long_date = mdy(long_date))
 
+```
+```{r}
+#| error : TRUE
+first_episodes |> mutate(uk_date = dmy(uk_date)) |> mutate(us_date = dmy(us_date)) |> mutate( long_date = mdy(long_date))
+
+```
+Excel dates:
+```{r}
+first_episodes$excel_date = excel_numeric_to_date(first_episodes$excel_date)
+ first_episodes
+```
 :::
 
 ### Task 3b: Date Processing
@@ -187,20 +200,39 @@ It has the following columns:
 - `volume`: The amount traded in that day.
 - `Name`: The stock's ticker symbol, a short code such as `AAL`, `GOOGL` or `BRK.B`.
 
-- [ ] The column names are not consistently formatted: one of them starts with a capital letter. Use `clean_names` to fix this, and check the new column names.
+- [x] The column names are not consistently formatted: one of them starts with a capital letter. Use `clean_names` to fix this, and check the new column names.
 
 ::: {.solution}
+```{r}
+stock_data = clean_names(stock_data)
+stock_data
+```
 
 :::
 
 Answer the following research questions:
 
-- [ ] Using the `yday` function, find which day of the year has the lowest trading volume on average.
-- [ ] Is a given `yday` always the same date? Compare `yday` for 24 December 2015 and 24 December 2016. Then redo the previous question, grouping by month and day instead.
-- [ ] Why might this day have such a low trading volume?
+- [x] Using the `yday` function, find which day of the year has the lowest trading volume on average.
+- [x] Is a given `yday` always the same date? Compare `yday` for 24 December 2015 and 24 December 2016. Then redo the previous question, grouping by month and day instead.
+- [x] Why might this day have such a low trading volume?
 
 ::: {.solution}
+```{r}
+stock_data |> group_by(yday(date)) |> summarise (mean_lowest = mean(volume, na.rm = TRUE))
 
+```
+
+```{r}
+yday(dmy("24 December 2015"))
+yday(dmy("24 December 2016"))
+```
+Because leap year
+
+```{r}
+stock_data |> group_by(month(date), mday(date)) |> summarise (mean_lowest = mean(volume, na.rm = TRUE)) |> arrange(mean_lowest)
+
+```
+Christmas eve has the lowest trading volume probs because day before xmas, everyone goes home.
 :::
 
 ## Finished? {.unnumbered}
