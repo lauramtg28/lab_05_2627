@@ -115,8 +115,8 @@ There are 32 episodes without a single script line according to this data set.
 Answer the following research questions:
 
 - [x] Which episode has the longest line (in terms of `spoken_words`)? Episode 503
-- [ ] Print that line in full (e.g. with `cat`). Does it look like a single line of dialogue? Find the same line in the raw CSV file: what do you think has gone wrong?
-- [ ] How many values of `spoken_words` have this problem? Remove them, and find the longest line again. (Hint: each row of a CSV file ends with a *newline* character, which `R` writes as `"\n"`. You can search for it with `str_detect` like any other text.)
+- [x] Print that line in full (e.g. with `cat`). Does it look like a single line of dialogue? Find the same line in the raw CSV file: what do you think has gone wrong?
+- [x] How many values of `spoken_words` have this problem? Remove them, and find the longest line again. (Hint: each row of a CSV file ends with a *newline* character, which `R` writes as `"\n"`. You can search for it with `str_detect` like any other text.)
 - [x] In how many episodes are donuts / doughnuts mentioned? (Hint: be careful about capitalisation.)
 
 ::: {.solution}
@@ -124,9 +124,16 @@ Which ep has longest line:
 ```{r}
 script_lines |> mutate ( string_length = str_length(spoken_words)) |> arrange(desc(string_length)) |> head()
 ```
+print out the line in full
+```{r}
+script_lines |> filter(id == 140906) |> select(spoken_words)
+```
+There are newline symbols where there shouldn't be.
+```{r}
+script_lines<- script_lines |> filter(str_detect(spoken_words, "\n") == FALSE)
 
-
-
+script_lines|> mutate ( string_length = str_length(spoken_words)) |> arrange(desc(string_length)) |> head()
+```
 No. of episodes doughnuts are mentioned in. 
 ```{r}
 script_lines |> mutate(spoken_words =str_to_lower(spoken_words)) |> mutate(has_donut = str_detect(spoken_words, "donut"), has_doughnut = str_detect(spoken_words, "doughnut")) |> filter(has_donut | has_doughnut) |> summarise( n_episodes_w_dnuts = n_distinct(episode_id))
