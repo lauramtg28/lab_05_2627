@@ -17,10 +17,10 @@ The cell below loads the data we used in the lab.
 #| message: false
 library(tidyverse)
 library(janitor)
-simpsons_characters <- read_csv("data/simpsons/simpsons_characters.csv")
-simpsons_episodes <- read_csv("data/simpsons/simpsons_episodes.csv")
-simpsons_locations <- read_csv("data/simpsons/simpsons_locations.csv")
-simpsons_script_lines <- read_csv("data/simpsons/simpsons_script_lines.csv")
+characters <- read_csv("data/simpsons/simpsons_characters.csv")
+episodes <- read_csv("data/simpsons/simpsons_episodes.csv")
+locations <- read_csv("data/simpsons/simpsons_locations.csv")
+script_lines <- read_csv("data/simpsons/simpsons_script_lines.csv")
 stock_data <- read_csv("data/all_stocks_5yr.csv") |>
     clean_names()
 ```
@@ -30,10 +30,19 @@ stock_data <- read_csv("data/all_stocks_5yr.csv") |>
 These questions follow on from Tasks 1 and 1b of the lab.
 (Make sure your outputs print character names, not just IDs).
 
-- [ ] Which characters have lines in the most episodes?
+- [x] Which characters have lines in the most episodes?
 - [ ] **Extension:** Which characters appear together most frequently in episodes?
 
 ::: {.solution}
+This is which episode does homer have the most lines in.
+```{r}
+script_lines |> inner_join(characters, by = c("character_id" = "id")) |> inner_join(episodes, by = c("episode_id" = "id")) |> group_by(character_name, title) |> summarise(n_lines = n()) |> arrange(desc(n_lines))
+```
+Who has lines in most episodes:
+```{r}
+script_lines |> inner_join(characters, by = c("character_id" = "id")) |> inner_join(episodes, by = c("episode_id" = "id")) |> group_by(character_name) |> summarise(n_episodes= n_distinct(episode_id)) |> arrange(desc(n_episodes))
+```
+
 
 :::
 
