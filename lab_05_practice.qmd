@@ -50,12 +50,14 @@ script_lines |> inner_join(characters, by = c("character_id" = "id")) |> inner_j
 
 These questions follow on from Task 2 of the lab.
 
-- [ ] How many lines contain exclamation marks?
+- [x] How many lines contain exclamation marks?
 - [ ] **Extension:** Read about *regular expressions* (see the Regular Expressions tip in the Week 5 notes, and try [regex101](https://regex101.com/)). In the lab you counted the episodes that mention donuts / doughnuts. Answer that question again, this time using a single `str_detect` with a regular expression that matches both "donut" and "doughnut".
 - [ ] Some location names are written in capitals (e.g. `KITCHEN`) and others are not (e.g. `Simpson Home`). How many are in capitals? Use `str_to_title` to give all the location names consistent capitalisation. Look through the results: does `str_to_title` always give what you want?
 
 ::: {.solution}
-
+```{r}
+script_lines |> summarise(n_exclamations = sum(str_detect(spoken_words, "!") == TRUE,  na.rm= TRUE))
+```
 :::
 
 ### Dates
